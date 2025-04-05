@@ -1,15 +1,12 @@
-#include "FastIMU.h"  // Library to read IMU data
 #include <Wire.h>
 #include <math.h>
-#include "MadgwickAHRS.h" // filter library
-
-#include <SPI.h>  // For Lora communication
-#include <LoRa.h>
 
 #include <motor_control.h> // A library I created to control the motors
 #include <Servo.h>
 
-Madgwick filter;  // Creation of madgwick filter
+#include <nelito.h>
+#include <pio_enconder.h>
+#include <quadrature.pio.h>
 
 #define IMU_ADDRESS 0x68    // The I2C address of the IMU
 MPU6500 IMU;               // Change to the name of any supported IMU!
@@ -155,16 +152,17 @@ void setup() {
   Wire.setClock(400000); //400khz clock
   Serial.begin(115200);
 
-  setupMotors();
+  // setupMotors();
+  motor.init()
 
-  Serial.println("Starting LoRa...");
+  Serial.println("Starting...");
 
   // Set the correct pins for the T-Beam v1.1
-  LoRa.setPins(18, 14, 26);
-  LoRa.setSpreadingFactor(7);  // Fastest SF
-  LoRa.setSignalBandwidth(250E3);  // 250 kHz (Allowed in Europe)
-  LoRa.setCodingRate4(5);  // 4/5 coding rate
-  LoRa.enableCrc();  // Enable CRC for error checking
+  // LoRa.setPins(18, 14, 26);
+  // LoRa.setSpreadingFactor(7);  // Fastest SF
+  // LoRa.setSignalBandwidth(250E3);  // 250 kHz (Allowed in Europe)
+  // LoRa.setCodingRate4(5);  // 4/5 coding rate
+  // LoRa.enableCrc();  // Enable CRC for error checking
 
   if (!LoRa.begin(868E6)) {     // Check LoRa connection
     Serial.println("Starting LoRa failed!");
@@ -218,17 +216,6 @@ void setup() {
 void loop() {  
   currentMillis = millis();
   if (currentMillis - previousMillis >= dt / 1000) { // Run at ~100Hz
-
-    IMU.update();
-    IMU.getAccel(&accelData);
-    IMU.getGyro(&gyroData);
-
-    // Esta parte está estranha...
-    float gx = (gyroData.gyroX - biasGyro_X) * 0.8;  // Gyro data with the bias compensation-----------------------------------------------------
-    float gy = (gyroData.gyroY - biasGyro_Y) * (PI / 180.0) * 1.5;  //converted from DPS to rad/s.
-    float gz = (gyroData.gyroZ - biasGyro_Z) * (PI / 180.0) * 1.5;
-    
-    filter.updateIMU(gx, gy, gz, accelData.accelX, accelData.accelY, accelData.accelZ);
 
     float roll = filter.getRoll() - initialRoll;      // Remove inicial random rotation------------------------------------------
     float pitch = filter.getPitch() - initialPitch;
