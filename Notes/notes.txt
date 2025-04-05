@@ -1,0 +1,23 @@
+Rasberry Pi Pico W usa RP2040
+2 cores
+
+No código usar os numeros de acordo com os pins utilizados
+
+LED_BUILTIN -> compilador já sabe q é o nº do LED q está ligado à placa
+OUTPUT -> reserved word para output 
+
+digitalWrite(PIN, LOW/HIGH) -> Escrita de um valor digital numa saída
+digitalRead -> Leitura de uma entrada digital. Retorna HIGH ou LOW
+analogRead -> Leitura de uma entrada analógica. Retorna nº inteiro entre 0 e 1024
+
+Controlo de saidas em PWM:
+ - analogWrite(PIN, duty_cycle): Gera uma onda quadrada com duty cycle definido pelo user. O duty cycle pode variar entre 0 e 255
+Podemos usar esta função para ajustar o sensor dos infravermelhos
+Labels trocadas: Se metermos no PWM é analog e vice versa. (lapso do staff)
+
+Clicar na lupa para abrir o serial Monitor
+Serial.begin(int) -> Usado no setup para inicializar porta série, tendo o argumento que coincidir com a baud rate (msm numero). 
+Serial.println(str) -> Ya é isso meu. E faz newline bro, crazy.
+Serial.available() -> Retorna o numero de bytes por ler
+
+Check Arduino Docs
