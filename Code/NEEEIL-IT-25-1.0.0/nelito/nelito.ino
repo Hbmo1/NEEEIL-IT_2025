@@ -22,15 +22,14 @@ const int IR3 = 7;
 const int IR4 = 6;
 const int IR5 = 5;
 
-const int ENC = 11;
-
-PioEncoder* encoder = new PioEncoder(ENC);
+const int shortcutPin = 11;
 
 bool sensorArray[5] = {1, 1, 0, 1, 1}; // init with middle sensor on
 
 long int currentMillis = 0;
 long int previousMillis = 0;
 long int previousMillisShortcut = 0;  // Use to avoid detecting the same shortcut immediately after using it
+long int foundLineMillis = -100000;    // Init at -10000 to enable identification immediately after start
 
 float current_line = 0;
 float current_w = 0;
@@ -42,6 +41,15 @@ float v_motor_b = 0;
 
 float prev_weight = 0;
 float prev_active_pins  = 1;
+
+bool allSensorsOFF() {
+  for (int i = 0; i < 5; i++) {
+    if (sensorArray[i] != true) { // or sensorArray[i] != 1
+      return false;
+    }
+  }
+  return true;
+}
 
 float compute_line() {
   sense_read(sensorArray);
@@ -176,6 +184,8 @@ float compute_PID(float line) {
 void setup() {
   Serial.begin(115200);
 
+  pinMode(shortcutPin, INPUT);
+
   motor_init();
   sense_init(IR1, IR2, IR3, IR4, IR5);
   analogWrite(12,75); //shhhhhh
@@ -219,10 +229,23 @@ void loop() {
     previousMillis = currentMillis;
   }
   
-  if (enable_delay) {
-    delay(250);       // Delay if edge cases found
-    enable_delay = 0;
+  if (!digitalRead(shortcutPin) && currentMillis - foundLineMillis >= 8000) {
+    // delay(50);
+    set_motor(17000, 5000);
+    while (!allSensorsOFF()) {
+      sense_read(sensorArray);
+    }
+    delay(10);
+    while (allSensorsOFF()){
+      sense_read(sensorArray);
+      foundLineMillis = millis();
+    }
   }
+
+  // if (enable_delay) {
+  //   delay(250);       // Delay if edge cases found
+  //   enable_delay = 0;
+  // }
   // for (float t = 0; t <= v_linear; t += 5) {
   //     set_motor(t * Ks, t);
   //     Serial.println(t);
