@@ -54,60 +54,60 @@ float compute_line() {
   float total_weight = 0;
   float active_pins = 0;
 
-  if (!sensorArray[0] && !sensorArray[1] && sensorArray[2] && !sensorArray[3] && sensorArray[4]) { // ON ON OFF ON OFF
-    enable_delay = 1;
-    return 4.5;   // Very sharp-- curve right
-  }
-
-  // if (!sensorArray[0] && !sensorArray[1] && sensorArray[2] && sensorArray[3] && !sensorArray[4]) { // ON ON OFF OFF ON
+  // if (!sensorArray[0] && !sensorArray[1] && sensorArray[2] && !sensorArray[3] && sensorArray[4]) { // ON ON OFF ON OFF
   //   enable_delay = 1;
-  //   return 4;     // Sharp curve right
+  //   return 5.5;   // Very sharp-- curve right
   // }
 
-  if (sensorArray[0] && !sensorArray[1] && !sensorArray[2] && sensorArray[3] && !sensorArray[4]) { // OFF ON ON OFF ON
-    enable_delay = 1;
-    return 5;     // Very sharp curve right
-  }
+  // // if (!sensorArray[0] && !sensorArray[1] && sensorArray[2] && sensorArray[3] && !sensorArray[4]) { // ON ON OFF OFF ON
+  // //   enable_delay = 1;
+  // //   return 4;     // Sharp curve right
+  // // }
 
-  if (!sensorArray[0] && !sensorArray[1] && !sensorArray[2] && sensorArray[3] && !sensorArray[4]) { // ON ON ON OFF ON 
-    enable_delay = 1;
-    return 5.5;   // Very sharp++ curve right
-  } 
-
-  // if (sensorArray[0] && !sensorArray[1] && !sensorArray[2] && !sensorArray[3] && !sensorArray[4]) { // OFF ON ON ON ON 
+  // if (sensorArray[0] && !sensorArray[1] && !sensorArray[2] && sensorArray[3] && !sensorArray[4]) { // OFF ON ON OFF ON
   //   enable_delay = 1;
-  //   return 5.5;   // Very sharp++ curve right
-  // }   
-
-  if (sensorArray[0] && !sensorArray[1] && sensorArray[2] && !sensorArray[3] && !sensorArray[4]) { // OFF ON OFF ON ON
-    enable_delay = 1;
-    return -4.5;  // Very sharp-- curve left
-  }
-
-  // if (!sensorArray[0] && sensorArray[1] && sensorArray[2] && !sensorArray[3] && !sensorArray[4]) { // ON OFF OFF ON ON
-  //   enable_delay = 1;
-  //   return -4;    // Sharp curve left
+  //   return 6;     // Very sharp curve right
   // }
 
-  if (!sensorArray[0] && sensorArray[1] && !sensorArray[2] && !sensorArray[3] && sensorArray[4]) { // ON OFF ON ON OFF
-    enable_delay = 1;
-    return -5;    // Very sharp curve left 
-  }
-
-  if (!sensorArray[0] && sensorArray[1] && !sensorArray[2] && !sensorArray[3] && !sensorArray[4]) { // ON OFF ON ON ON
-    enable_delay = 1;
-    return -5.5;    // Very sharp++ curve left 
-  }
-
-  // if (!sensorArray[0] && !sensorArray[1] && !sensorArray[2] && !sensorArray[3] && sensorArray[4]) { // ON ON ON ON OFF
+  // if (!sensorArray[0] && !sensorArray[1] && !sensorArray[2] && sensorArray[3] && !sensorArray[4]) { // ON ON ON OFF ON 
   //   enable_delay = 1;
-  //   return -5.5;    // Very sharp++ curve left 
+  //   return 6.5;   // Very sharp++ curve right
+  // } 
+
+  // // if (sensorArray[0] && !sensorArray[1] && !sensorArray[2] && !sensorArray[3] && !sensorArray[4]) { // OFF ON ON ON ON 
+  // //   enable_delay = 1;
+  // //   return 6.5;   // Very sharp++ curve right
+  // // }   
+
+  // if (sensorArray[0] && !sensorArray[1] && sensorArray[2] && !sensorArray[3] && !sensorArray[4]) { // OFF ON OFF ON ON
+  //   enable_delay = 1;
+  //   return -5.5;  // Very sharp-- curve left
   // }
 
-  if (sensorArray[0] && !sensorArray[1] && !sensorArray[2] && sensorArray[3] && !sensorArray[4]) { // ON OFF ON ON PFF
-    enable_delay = 1;
-    return 5; 
-  }
+  // // if (!sensorArray[0] && sensorArray[1] && sensorArray[2] && !sensorArray[3] && !sensorArray[4]) { // ON OFF OFF ON ON
+  // //   enable_delay = 1;
+  // //   return -5;    // Sharp curve left
+  // // }
+
+  // if (!sensorArray[0] && sensorArray[1] && !sensorArray[2] && !sensorArray[3] && sensorArray[4]) { // ON OFF ON ON OFF
+  //   enable_delay = 1;
+  //   return -6;    // Very sharp curve left 
+  // }
+
+  // if (!sensorArray[0] && sensorArray[1] && !sensorArray[2] && !sensorArray[3] && !sensorArray[4]) { // ON OFF ON ON ON
+  //   enable_delay = 1;
+  //   return -6.5;    // Very sharp++ curve left 
+  // }
+
+  // // if (!sensorArray[0] && !sensorArray[1] && !sensorArray[2] && !sensorArray[3] && sensorArray[4]) { // ON ON ON ON OFF
+  // //   enable_delay = 1;
+  // //   return -6.5;    // Very sharp++ curve left 
+  // // }
+
+  // if (sensorArray[0] && !sensorArray[1] && !sensorArray[2] && sensorArray[3] && !sensorArray[4]) { // ON OFF ON ON PFF
+  //   enable_delay = 1;
+  //   return 6; 
+  // }
 
   if (!sensorArray[0]) {
     total_weight -= 5;
