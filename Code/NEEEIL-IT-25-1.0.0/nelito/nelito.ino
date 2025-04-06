@@ -7,7 +7,7 @@ float Vmax = 15000;
 
 float w = 0;
 
-float Kp = 4300, Kd = 500, Ki = 0, Ks = 0.951, Kc = 0.54;
+float Kp = 4300, Kd = 500, Ki = 0, Ks = 0.951, Kc = 0.52;
 
 float PWM_init = 0; // descobrir!!!
 
@@ -127,11 +127,15 @@ void loop() {
     v_motor_a = v_linear * Ks - current_w;
     v_motor_b = v_linear + current_w;
 
-    if (v_motor_a <= 0 && v_motor_a >= -10000) {
-      v_motor_a = -10000;
+    if (v_motor_a <= 0 && v_motor_a >= -8000) {
+      v_motor_a = -8000;
+    } else if (v_motor_a >= 0 && v_motor_a <= 8000) {
+      v_motor_a = 8000;
     }
-    if (v_motor_b >= 0 && v_motor_b <= 10000) {
-      v_motor_b = 10000;
+    if (v_motor_b <= 0 && v_motor_b >= -8000) {
+      v_motor_b = -8000;
+    } else if (v_motor_b >= 0 && v_motor_b <= 8000) {
+      v_motor_b = 8000;
     }
     set_motor(v_motor_a, v_motor_b);  // Straight line with current_w changes to adapt to line
     previousMillis = currentMillis;
