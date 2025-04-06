@@ -10,7 +10,7 @@ float w = 0;
 
 float Kp = 3350, Kd = 595, Ki = 37, Ks = 0.958, Kc = 0.00011; // Kp_antes = 4000, Kd = 455, Ki = 60 -> 0.0011 <= Kc <= 0.0033 ; Ks NÃO MEXER!!!!
 
-float PWM_init = 8000; 
+float PWM_init = 9000; 
 float linha = 0;
 
 bool enable_delay = 0;
