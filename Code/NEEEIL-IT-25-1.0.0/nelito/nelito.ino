@@ -2,14 +2,14 @@
 #include "pio_encoder.h"
 #include "quadrature.pio.h"
 
-float v_linear = 20000;
-float Vmax = 20000;
+float v_linear = 15000;
+float Vmax = 15000;
 
 float w = 0;
 
-float Kp = 4300, Kd = 600, Ki = 0, Ks = 0.951, Kc = 0.52;
+float Kp = 2000, Kd = 400, Ki = 0, Ks = 0.951, Kc = 0.1;
 
-float PWM_init = 0; // descobrir!!!
+float PWM_init = 8500; // descobrir!!!
 
 float linha = 0;
 const int IR1 = 10;
@@ -21,30 +21,17 @@ const int IR5 = 5;
 bool sensorArray[5] = {1, 1, 0, 1, 1}; // init with middle sensor on
 
 long int currentMillis = 0;
-long int previousMillisLoop = 0;
-long int previousMillisMean = 0;
+long int previousMillis = 0;
 
 float current_line = 0;
 float current_w = 0;
 
 float prev_line = 0;
-float prev_weight = 0;
-float prev_active_pins = 1;
-float four_prev_weights[4] = {0};
-float four_prev_active_pins[4] = {1, 1, 1, 1};
 
 float v_motor_a = 0;
 float v_motor_b = 0;
 
-float pondered_weight = 0;
-
-void fifo_push(float *fifo, float new_value, int size) {
-    for (int i = size - 1; i > 0; i--) {
-        fifo[i] = fifo[i - 1];
-    }
-    fifo[0] = new_value;
-}
-
+float prev_weight = 0;
 
 float compute_line() {
   sense_read(sensorArray);
@@ -60,7 +47,6 @@ float compute_line() {
   if (!sensorArray[0]) {
     total_weight -= 2;
     active_pins++;
-
   }
 
   if (!sensorArray[1]) {
@@ -83,80 +69,37 @@ float compute_line() {
     active_pins++;
   }
 
-  if (active_pins == 0) { 
-    prev_active_pins = active_pins;
-    if (prev_weight > 0) { 
+  if (active_pins == 0 || active_pins == 5) { 
+    // return prev_weight;
+    if (prev_weight > 0) {            // 
       return 2;                       // strafe as far right as you can
-    } else if (prev_weight < 0) { 
+    } else if (prev_weight < 0) {     //
       return -2;                      // strafe as far left as you can
     } else {            
       return 0;
     }
   }
 
-  if (active_pins == 5) {
-    if (prev_weight == 0.5 && prev_active_pins == 4) {
-      prev_active_pins = active_pins;
-      return 2;
-    } else if (prev_weight == -0.5 && prev_active_pins == 4) {
-      prev_active_pins = active_pins;
-      return -2;
-    }
-    if (prev_weight > 0) {            
-      prev_active_pins = active_pins;
-      return -2;                      // strafe as far left as you can (opp direction)
-    } else if (prev_weight < 0) {     
-      prev_active_pins = active_pins;
-      return 2;                       // strafe as far right as you can (opp direction)
-    } else {            
-      prev_active_pins = active_pins;
-      return 0;
-    }
-  }   
-
-  Serial.println(total_weight / active_pins);
+  // Serial.println(total_weight / active_pins);
   prev_weight = total_weight / active_pins;
-  prev_active_pins = active_pins;
-
-  // if (active_pins == 0) { 
-  //   pondered_weight = (total_weight + four_prev_weights[0] + four_prev_weights[1] + four_prev_weights[2] + four_prev_weights[3]) / (active_pins + four_prev_active_pins[0] + four_prev_active_pins[1] + four_prev_active_pins[2] + four_prev_active_pins[3]);
-  //   // return prev_weight;
-  //   if (pondered_weight > 0) {            // 
-  //     return 2;                      // strafe as far left as you can (opp direction)
-  //   } else if (pondered_weight < 0) {     //
-  //     return -2;                       // strafe as far right as you can (opp direction)
-  //   } else {            
-  //     return 0;
-  //   }
-  // }
-
-
-  // if (active_pins == 5) { 
-
-  //   pondered_weight = - (total_weight + four_prev_weights[0] + four_prev_weights[1] + four_prev_weights[2] + four_prev_weights[3]) / (active_pins + four_prev_active_pins[0] + four_prev_active_pins[1] + four_prev_active_pins[2] + four_prev_active_pins[3]);
-  //   // return prev_weight;
-  //   if (pondered_weight > 0) {           
-  //     return -2;                      // strafe as far left as you can (opp direction)
-  //   } else if (pondered_weight < 0) {    
-  //     return 2;                       // strafe as far right as you can (opp direction)
-  //   } else {            
-  //     return 0;
-  //   }
-  // }
-
-  // if (currentMillis - previousMillisMean >= 200) {
-  //   fifo_push(four_prev_weights, total_weight, 4);
-  //   fifo_push(four_prev_active_pins, active_pins, 4);
-  //   previousMillisMean = currentMillis;
-  // }
- 
   return total_weight / active_pins;
+
+  // if (sensorArray[0] == 0 && sensorArray[1] == 1 && sensorArray[2] == 1 && sensorArray[3] == 1 && sensorArray[4] == 0) {          // 11 -> [0,1,1,1,0]  
+  //   return 0    // straight ahead captain!
+  // } else if (sensorArray[0] == 0 && sensorArray[1] == 1 && sensorArray[2] == 1 && sensorArray[3] == 0 && sensorArray[4] == 0) {   // 10 -> [0,1,1,0,0]
+  //   return -0.25   // slight turn left
+  // } else if (sensorArray[0] == 0 && sensorArray[1] == 0 && sensorArray[2] == 1 && sensorArray[3] == 1 && sensorArray[4] == 0) {   // 13 -> [0,0,1,1,0]
+  //   return 
+  // }
 }
 
 float compute_PID(float line) {
-  float w = Kp * line + Kd * (line - prev_line)*200 + Ki * (line + prev_line)/(2 * 200);
+
+  float w = Kp * line + Ki * line + Kd * (line - prev_line)*100;
   prev_line = line;
+
   return w;
+
 }
 
 void setup() {
@@ -176,26 +119,48 @@ void setup() {
 
 void loop() {  
   currentMillis = millis();
-  if (currentMillis - previousMillisLoop >= 10) { // Run at ~100Hz
+  if (currentMillis - previousMillis >= 10) { // Run at ~100Hz
     current_line = compute_line();
     current_w = compute_PID(current_line);
     v_linear = Vmax * cos(Kc * current_w);
     v_motor_a = v_linear * Ks - current_w;
     v_motor_b = v_linear + current_w;
 
-    if (v_motor_a <= 0 && v_motor_a >= -8700 * Ks) {
-      v_motor_a = -8700 * Ks;
-    } else if (v_motor_a >= 0 && v_motor_a <= 8700 * Ks) {
-      v_motor_a = 8700 * Ks;
+    if (v_motor_a <= 0 && v_motor_a >= -PWM_init) {
+      v_motor_a = -PWM_init;
+    } else if (v_motor_a >= 0 && v_motor_a <= PWM_init) {
+      v_motor_a = PWM_init;
     }
-    if (v_motor_b <= 0 && v_motor_b >= -8700) {
-      v_motor_b = -8700;
-    } else if (v_motor_b >= 0 && v_motor_b <= 8700) {
-      v_motor_b = 8700;
+    if (v_motor_b <= 0 && v_motor_b >= -PWM_init) {
+      v_motor_b = -PWM_init;
+    } else if (v_motor_b >= 0 && v_motor_b <= PWM_init) {
+      v_motor_b = PWM_init;
     }
     set_motor(v_motor_a, v_motor_b);  // Straight line with current_w changes to adapt to line
-    previousMillisLoop = currentMillis;
+    previousMillis = currentMillis;
   }
+
+
+
+  // for (float t = 0; t <= v_linear; t += 5) {
+  //     set_motor(t * Ks, t);
+  //     Serial.println(t);
+  //     delay(10);
+  //   }
+  // set_motor(v_linear * Ks, v_linear);
+
+  // delay (3000);
+
+  // for (float t = v_linear; t >= 0; t -= 5) {
+  //     set_motor(t * Ks, t);
+  //     Serial.println(t);
+  //     delay(10);
+  //   }
+  // set_motor(0, 0);
+
+  // delay (3000);
 }
+
+//amarelo ; vermelho
 
 // GPIOs: 5,6,7,8,10
