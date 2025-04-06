@@ -230,7 +230,7 @@ void loop() {
   }
   
   if (!digitalRead(shortcutPin) && currentMillis - foundLineMillis >= 8000) {
-    // delay(50);
+    delay(60);
     set_motor(17000, 5000);
     while (!allSensorsOFF()) {
       sense_read(sensorArray);
