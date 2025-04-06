@@ -2,12 +2,12 @@
 #include "pio_encoder.h"
 #include "quadrature.pio.h"
 
-float v_linear = 15000;
-float Vmax = 15000;
+float v_linear = 20000;
+float Vmax = 20000;
 
 float w = 0;
 
-float Kp = 4300, Kd = 500, Ki = 0, Ks = 0.951, Kc = 0.52;
+float Kp = 4300, Kd = 575, Ki = 0, Ks = 0.951, Kc = 0.52;
 
 float PWM_init = 0; // descobrir!!!
 
@@ -70,12 +70,22 @@ float compute_line() {
     active_pins++;
   }
 
-  if (active_pins == 0 || active_pins == 5) { 
+  if (active_pins == 0) { 
     // return prev_weight;
     if (prev_weight > 0) {            // 
       return 2;                       // strafe as far right as you can
     } else if (prev_weight < 0) {     //
       return -2;                      // strafe as far left as you can
+    } else {            
+      return 0;
+    }
+  }
+
+  if (active_pins == 5) {
+    if (prev_weight > 0) {            // 
+      return -2;                      // strafe as far left as you can (opp direction)
+    } else if (prev_weight < 0) {     //
+      return 2;                       // strafe as far right as you can (opp direction)
     } else {            
       return 0;
     }
@@ -96,7 +106,7 @@ float compute_line() {
 
 float compute_PID(float line) {
 
-  float w = Kp * line + Ki * line + Kd * (line - prev_line)*100;
+  float w = Kp * line + Kd * (line - prev_line)*200 + Ki * (line + prev_line)/(2 * 200);
   prev_line = line;
 
   return w;
@@ -120,22 +130,22 @@ void setup() {
 
 void loop() {  
   currentMillis = millis();
-  if (currentMillis - previousMillis >= 10) { // Run at ~100Hz
+  if (currentMillis - previousMillis >= 5) { // Run at ~200Hz
     current_line = compute_line();
     current_w = compute_PID(current_line);
     v_linear = Vmax * cos(Kc * current_w);
     v_motor_a = v_linear * Ks - current_w;
     v_motor_b = v_linear + current_w;
 
-    if (v_motor_a <= 0 && v_motor_a >= -8000) {
-      v_motor_a = -8000;
-    } else if (v_motor_a >= 0 && v_motor_a <= 8000) {
-      v_motor_a = 8000;
+    if (v_motor_a <= 0 && v_motor_a >= -8500 * Ks) {
+      v_motor_a = -8500 * Ks;
+    } else if (v_motor_a >= 0 && v_motor_a <= 8500 * Ks) {
+      v_motor_a = 8500 * Ks;
     }
-    if (v_motor_b <= 0 && v_motor_b >= -8000) {
-      v_motor_b = -8000;
-    } else if (v_motor_b >= 0 && v_motor_b <= 8000) {
-      v_motor_b = 8000;
+    if (v_motor_b <= 0 && v_motor_b >= -8500) {
+      v_motor_b = -8500;
+    } else if (v_motor_b >= 0 && v_motor_b <= 8500) {
+      v_motor_b = 8500;
     }
     set_motor(v_motor_a, v_motor_b);  // Straight line with current_w changes to adapt to line
     previousMillis = currentMillis;
