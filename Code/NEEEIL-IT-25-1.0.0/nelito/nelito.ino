@@ -3,14 +3,14 @@
 #include "quadrature.pio.h"
 
 
-float v_linear = 18000;
-float Vmax = 18000;
+float v_linear = 19000;
+float Vmax = 19000;
 
 float w = 0;
 
-float Kp = 4050, Kd = 455, Ki = 60, Ks = 0.951, Kc = 0.00011; // Kp_antes = 4000, Kd = 450 -> 0.0011 <= Kc <= 0.0033 
+float Kp = 3350, Kd = 595, Ki = 37, Ks = 0.958, Kc = 0.00011; // Kp_antes = 4000, Kd = 455, Ki = 60 -> 0.0011 <= Kc <= 0.0033 ; Ks NÃO MEXER!!!!
 
-float PWM_init = 9200; 
+float PWM_init = 8000; 
 float linha = 0;
 
 bool enable_delay = 0;
@@ -41,6 +41,8 @@ float v_motor_b = 0;
 
 float prev_weight = 0;
 float prev_active_pins  = 1;
+
+float os_amigos_que_fizemos_ao_longo_do_caminho = 20;
 
 bool allSensorsOFF() {
   for (int i = 0; i < 5; i++) {
@@ -123,7 +125,7 @@ float compute_line() {
   }
 
   if (!sensorArray[1]) {
-    total_weight -= 1.5;
+    total_weight -= 3;
     active_pins++;
   }
 
@@ -133,7 +135,7 @@ float compute_line() {
   }
 
   if (!sensorArray[3]) {
-    total_weight += 1.5;
+    total_weight += 3;
     active_pins++;
   }
 
@@ -185,11 +187,18 @@ void setup() {
   Serial.begin(115200);
 
   pinMode(shortcutPin, INPUT);
+  pinMode(22, INPUT);
 
   motor_init();
   sense_init(IR1, IR2, IR3, IR4, IR5);
+  
   analogWrite(12,75); //shhhhhh
-  for (float t = 5000; t <= v_linear; t += 250) {   // Initialize motor
+
+  while (!digitalRead(22)) {
+    ;
+  }
+
+  for (float t = 10000; t <= v_linear; t += 250) {   // Initialize motor
       set_motor(t * Ks, t);
       Serial.println(t);
       delay(10);
@@ -230,7 +239,7 @@ void loop() {
   }
   
   if (!digitalRead(shortcutPin) && currentMillis - foundLineMillis >= 8000) {
-    delay(60);
+    //delay(os_amigos_que_fizemos_ao_longo_do_caminho);
     set_motor(17000, 5000);
     while (!allSensorsOFF()) {
       sense_read(sensorArray);
